@@ -1,8 +1,11 @@
-from sqlalchemy.ext.declarative import d
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import create_async_engine
+
+from app.core.config import settings
 
 
+engine = create_async_engine(str(settings.POSTGRES_URL_ASYNC), echo=settings.ECHO)
 
-engine = create_async_engine()
 
-
+class Base(DeclarativeBase):
+    pass

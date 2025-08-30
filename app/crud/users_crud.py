@@ -19,10 +19,7 @@ async def create_user(session: AsyncSession, user_data: UserCreateSchema):
 
 
 async def get_user_by_id(session: AsyncSession, user_id: UUID) -> UserModel:
-    stmt = (
-        select(UserModel)
-        .where(UserModel.id == user_id)
-    )
+    stmt = select(UserModel).where(UserModel.id == user_id)
     user = await session.scalar(stmt)
     if not user:
         raise USER_NOT_FOUND_EXCEPTION
@@ -30,17 +27,16 @@ async def get_user_by_id(session: AsyncSession, user_id: UUID) -> UserModel:
 
 
 async def get_user_by_email(session: AsyncSession, email: str) -> UserModel:
-    stmt = (
-        select(UserModel)
-        .where(UserModel.email == email)
-    )
+    stmt = select(UserModel).where(UserModel.email == email)
     user = await session.scalar(stmt)
     if not user:
         raise USER_NOT_FOUND_EXCEPTION
     return user
 
 
-async def update_user(session: AsyncSession, user_data: UserUpdateSchema, user_id: UUID):
+async def update_user(
+    session: AsyncSession, user_data: UserUpdateSchema, user_id: UUID
+):
     user = await get_user_by_id(session, user_id)
     if not user:
         raise USER_NOT_FOUND_EXCEPTION
