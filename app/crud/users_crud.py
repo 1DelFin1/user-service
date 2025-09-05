@@ -14,7 +14,7 @@ async def create_user(session: AsyncSession, user_data: UserCreateSchema):
     user["hashed_password"] = get_password_hash(user_data.password)
     new_user = UserModel(**user)
     session.add(new_user)
-    await session.commit()
+    await session.refresh(new_user)
     return {"ok": True}
 
 
@@ -38,8 +38,6 @@ async def update_user(
     session: AsyncSession, user_data: UserUpdateSchema, user_id: UUID
 ):
     user = await get_user_by_id(session, user_id)
-    if not user:
-        raise USER_NOT_FOUND_EXCEPTION
 
     new_user = user_data.model_dump(exclude_unset=True)
     if "password" in new_user:
@@ -48,15 +46,11 @@ async def update_user(
     for key, value in new_user.items():
         if new_user[key] != "":
             setattr(user, key, value)
-    await session.commit()
     await session.refresh(user)
     return {"ok": True}
 
 
 async def delete_user(session: AsyncSession, user_id: UUID):
     user = await get_user_by_id(session, user_id)
-    if not user:
-        raise USER_NOT_FOUND_EXCEPTION
     await session.delete(user)
-    await session.commit()
     return {"ok": True}

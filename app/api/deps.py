@@ -6,13 +6,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.utils import JWTAuthenticator
 from app.crud import users_crud
-from app.core.database import engine
+from app.core.database import async_session_factory
 
 
 async def get_session() -> AsyncSession:
-    async with AsyncSession(engine) as session:
-        yield session
-
+    async with async_session_factory() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
