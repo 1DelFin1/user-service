@@ -14,7 +14,6 @@ async def create_user(session: AsyncSession, user_data: UserCreateSchema):
     user["hashed_password"] = get_password_hash(user_data.password)
     new_user = UserModel(**user)
     session.add(new_user)
-    await session.refresh(new_user)
     return {"ok": True}
 
 

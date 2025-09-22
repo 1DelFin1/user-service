@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 import jwt
 
 from fastapi import Response
@@ -15,20 +15,21 @@ from app.crud import users_crud
 class JWTAuthenticator:
     @staticmethod
     def create_jwt_token(
-        payload,
+        payload: dict,
         key=settings.JWT_SECRET_KEY,
         algorithm=settings.JWT_ALGORITHM,
         expire_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
         expire_timedelta: timedelta | None = None,
     ):
         to_encode = payload.copy()
+        now = datetime.now(timezone.utc)
         if expire_timedelta:
-            expire = datetime.now() + expire_timedelta
+            expire = now + expire_timedelta
         else:
-            expire = datetime.now() + timedelta(minutes=expire_minutes)
+            expire = now + timedelta(minutes=expire_minutes)
         to_encode.update(
             exp=expire,
-            iat=datetime.now(),
+            iat=now,
         )
         encoded = jwt.encode(to_encode, key, algorithm)
         return encoded

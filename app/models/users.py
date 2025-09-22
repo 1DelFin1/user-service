@@ -4,7 +4,6 @@ from uuid import uuid4, UUID
 from sqlalchemy import String, Boolean, DateTime
 from sqlalchemy.orm import mapped_column, Mapped
 
-
 from app.core.database import Base
 from app.models.mixins import TimestampMixin
 
