@@ -9,7 +9,7 @@ from app.exceptions import INCORRECT_DATA_EXCEPTION
 from app.api.request_forms import OAuth2EmailRequestForm
 from app.core.security import verify_password
 from app.core.config import settings
-from app.crud import users_crud
+from app.services import UserService
 
 
 class JWTAuthenticator:
@@ -50,7 +50,7 @@ class Authorization:
         form_data: OAuth2EmailRequestForm,
         response: Response,
     ):
-        user = await users_crud.get_user_by_email(session, form_data.username)
+        user = await UserService.get_user_by_email(session, form_data.username)
         if not user:
             raise INCORRECT_DATA_EXCEPTION
         if not verify_password(form_data.password, user.hashed_password):

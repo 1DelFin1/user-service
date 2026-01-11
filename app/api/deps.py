@@ -1,12 +1,17 @@
 from typing import Annotated
 from jwt.exceptions import InvalidTokenError
 
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.utils import JWTAuthenticator
-from app.crud import users_crud
 from app.core.database import async_session_factory
+from app.exceptions import (
+    USER_NOT_FOUND_EXCEPTION,
+    USER_UNAUTHORIZED_EXCEPTION,
+    INVALID_TOKEN_EXCEPTION,
+)
+from app.services import UserService
 
 
 async def get_session() -> AsyncSession:
@@ -17,30 +22,22 @@ async def get_session() -> AsyncSession:
             await session.rollback()
             raise
 
+
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
 async def get_current_active_auth_user(request: Request, session: SessionDep):
     token = request.cookies.get("token")
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authorized",
-        )
+        raise USER_UNAUTHORIZED_EXCEPTION
 
     try:
         payload = JWTAuthenticator.decode_jwt_token(token)
     except InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
+        raise INVALID_TOKEN_EXCEPTION
 
-    user = await users_crud.get_user_by_email(session, payload.get("email"))
+    user = await UserService.get_user_by_email(session, payload.get("email"))
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-        )
+        raise USER_NOT_FOUND_EXCEPTION
 
     return user

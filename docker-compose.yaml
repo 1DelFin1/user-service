@@ -1,0 +1,57 @@
+services:
+  user_service:
+    build:
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+#    environment:
+#      - DB_HOST=${USER_DB_HOST}
+#      - DB_PORT=${USER_DB_PORT}
+#      - DB_NAME=${USER_DB_NAME}
+#      - DB_USER=${USER_DB_USER}
+#      - DB_PASSWORD=${USER_DB_PASSWORD}
+    depends_on:
+      user_db:
+        condition: service_healthy
+    networks:
+      - backend_network
+    ports:
+      - 8000:8000
+
+  user_db:
+    image: "postgres:17"
+    restart: always
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER_SERVICE_USER}
+      POSTGRES_PASSWORD: ${DB_USER_SERVICE_PASSWORD}
+      POSTGRES_DB: ${DB_USER_SERVICE_NAME}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER_SERVICE_USER} -d ${DB_USER_SERVICE_NAME}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - user_pgdata:/var/lib/postgresql/data
+    networks:
+      - backend_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_USER_SERVICE_PASSWORD}
+    ports:
+      - "5050:80"
+    networks:
+      - backend_network
+
+networks:
+  backend_network:
+    driver: bridge
+
+volumes:
+  user_pgdata:
