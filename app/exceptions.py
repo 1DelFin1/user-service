@@ -5,6 +5,11 @@ USER_NOT_FOUND_EXCEPTION = HTTPException(
     detail="Пользователь не найден",
 )
 
+USER_ALREADY_EXIST_EXCEPTION = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail="Пользователь с таким email уже существует",
+)
+
 USER_UNAUTHORIZED_EXCEPTION = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Пользователь не авторизован",
