@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, AsyncGenerator
 from jwt.exceptions import InvalidTokenError
 
 from fastapi import Depends, Request
@@ -14,7 +14,7 @@ from app.exceptions import (
 from app.services import UserService
 
 
-async def get_session() -> AsyncSession:
+async def get_session() -> AsyncGenerator:
     async with async_session_factory() as session:
         try:
             yield session
