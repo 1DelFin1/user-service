@@ -17,5 +17,5 @@ class SellerModel(Base, TimestampMixin):
     birthday: Mapped[date] = mapped_column(DateTime)
     hashed_password: Mapped[str] = mapped_column(String)
     rating: Mapped[float] = mapped_column(Float, default=0.0, server_default="0.0")
-    orders_count: Mapped[int] = mapped_column(Integer)
+    orders_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     is_active: Mapped[bool] = mapped_column(Boolean)

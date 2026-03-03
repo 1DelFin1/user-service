@@ -1,3 +1,4 @@
-__all__ = ("UserService",)
+__all__ = ("UserService", "SellerService")
 
 from app.services.user_service import UserService
+from app.services.seller_service import SellerService

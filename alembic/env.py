@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from app.models.users import UserModel
-from app.models.sellers import SellerModel
+from app.models.users import UserModel  # noqa: F401
+from app.models.sellers import SellerModel  # noqa: F401
 from app.core.database import Base
 from app.core.config import settings
 

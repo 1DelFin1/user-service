@@ -5,11 +5,11 @@ from fastapi import Response
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.exceptions import INCORRECT_DATA_EXCEPTION
+from app.exceptions import INCORRECT_DATA_EXCEPTION, INVALID_ACCOUNT_TYPE_EXCEPTION
 from app.api.request_forms import OAuth2EmailRequestForm
 from app.core.security import verify_password
 from app.core.config import settings
-from app.services import UserService
+from app.services import UserService, SellerService
 
 
 class JWTAuthenticator:
@@ -50,10 +50,29 @@ class Authorization:
         form_data: OAuth2EmailRequestForm,
         response: Response,
     ):
-        user = await UserService.get_user_by_email(session, form_data.username)
-        if not user:
-            raise INCORRECT_DATA_EXCEPTION
-        if not verify_password(form_data.password, user.hashed_password):
+        account_type = form_data.account_type
+        if account_type not in {None, "user", "seller"}:
+            raise INVALID_ACCOUNT_TYPE_EXCEPTION
+
+        candidates = [
+            ("user", UserService),
+            ("seller", SellerService),
+        ]
+        if account_type is not None:
+            candidates = [candidate for candidate in candidates if candidate[0] == account_type]
+
+        selected_type = None
+        user = None
+        for candidate_type, service in candidates:
+            found = await service.get_by_email(session, form_data.username)
+            if not found:
+                continue
+            if verify_password(form_data.password, found.hashed_password):
+                selected_type = candidate_type
+                user = found
+                break
+
+        if user is None:
             raise INCORRECT_DATA_EXCEPTION
 
         user_data = {
@@ -61,6 +80,7 @@ class Authorization:
             "name": user.name,
             "email": user.email,
             "birthday": str(user.birthday.isoformat()),
+            "account_type": selected_type,
         }
 
         token = JWTAuthenticator.create_jwt_token(user_data)
