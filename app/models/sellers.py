@@ -15,6 +15,7 @@ class SellerModel(Base, TimestampMixin):
     email: Mapped[str] = mapped_column(String(255), index=True, unique=True)
     name: Mapped[str] = mapped_column(String(50))
     birthday: Mapped[date] = mapped_column(DateTime)
+    photo_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     hashed_password: Mapped[str] = mapped_column(String)
     rating: Mapped[float] = mapped_column(Float, default=0.0, server_default="0.0")
     orders_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")

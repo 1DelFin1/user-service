@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile
 
 from app.api.deps import SessionDep, get_current_active_auth_user
 from app.exceptions import USER_NOT_FOUND_EXCEPTION
-from app.schemas import UserCreateSchema, UserUpdateSchema, UserInDBSchema
+from app.schemas import UserCreateSchema, UserUpdateSchema, UserInDBSchema, UserOutSchema
 from app.services import UserService
 
 
@@ -16,6 +16,15 @@ async def get_current_user(
     user_data: UserInDBSchema = Depends(get_current_active_auth_user),
 ):
     return user_data
+
+
+@users_router.post("/me/photo", response_model=UserOutSchema)
+async def upload_current_user_photo(
+    session: SessionDep,
+    file: UploadFile = File(...),
+    user_data: UserInDBSchema = Depends(get_current_active_auth_user),
+):
+    return await UserService.upload_user_photo(session, user_data.id, file)
 
 
 @users_router.post("")

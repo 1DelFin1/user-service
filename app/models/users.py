@@ -15,6 +15,7 @@ class UserModel(Base, TimestampMixin):
     email: Mapped[str] = mapped_column(String(255), index=True, unique=True)
     name: Mapped[str] = mapped_column(String(50))
     birthday: Mapped[date] = mapped_column(DateTime)
+    photo_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     hashed_password: Mapped[str] = mapped_column(String)
     is_active: Mapped[bool] = mapped_column(Boolean)
     is_superuser: Mapped[bool] = mapped_column(Boolean)

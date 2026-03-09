@@ -25,6 +25,7 @@ class UserUpdateSchema(BaseModel):
 
 class UserOutSchema(UserBaseSchema):
     id: UUID
+    photo_url: str | None = None
 
     class Config:
         from_attributes = True
@@ -32,6 +33,7 @@ class UserOutSchema(UserBaseSchema):
 
 class UserInDBSchema(UserBaseSchema):
     id: UUID
+    photo_url: str | None = None
     hashed_password: str
 
 
@@ -59,6 +61,7 @@ class SellerUpdateSchema(BaseModel):
 
 class SellerOutSchema(SellerBaseSchema):
     id: UUID
+    photo_url: str | None = None
 
     class Config:
         from_attributes = True
@@ -66,4 +69,5 @@ class SellerOutSchema(SellerBaseSchema):
 
 class SellerInDBSchema(SellerBaseSchema):
     id: UUID
+    photo_url: str | None = None
     hashed_password: str

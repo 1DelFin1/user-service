@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile
 
 from app.api.deps import SessionDep, get_current_active_auth_seller
 from app.exceptions import SELLER_NOT_FOUND_EXCEPTION
-from app.schemas import SellerCreateSchema, SellerUpdateSchema, SellerInDBSchema
+from app.schemas import SellerCreateSchema, SellerUpdateSchema, SellerInDBSchema, SellerOutSchema
 from app.services import SellerService
 
 
@@ -16,6 +16,15 @@ async def get_current_user(
     user_data: SellerInDBSchema = Depends(get_current_active_auth_seller),
 ):
     return user_data
+
+
+@sellers_router.post("/me/photo", response_model=SellerOutSchema)
+async def upload_current_seller_photo(
+    session: SessionDep,
+    file: UploadFile = File(...),
+    user_data: SellerInDBSchema = Depends(get_current_active_auth_seller),
+):
+    return await SellerService.upload_seller_photo(session, user_data.id, file)
 
 
 @sellers_router.post("")

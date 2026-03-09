@@ -33,6 +33,13 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
+    MINIO_ENDPOINT: str = "minio:9000"
+    MINIO_ACCESS: str
+    MINIO_SECRET: str
+    MINIO_BUCKET_NAME: str
+    MINIO_PUBLIC_ENDPOINT: str = "http://localhost:9000"
+    MINIO_SECURE: bool = False
+
     @computed_field
     @property
     def POSTGRES_URL_ASYNC(self) -> MultiHostUrl:
