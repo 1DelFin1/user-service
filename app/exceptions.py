@@ -37,5 +37,5 @@ INCORRECT_DATA_EXCEPTION = HTTPException(
 
 INVALID_ACCOUNT_TYPE_EXCEPTION = HTTPException(
     status_code=status.HTTP_400_BAD_REQUEST,
-    detail="Невалидный тип аккаунта. Разрешены: user, seller",
+    detail="Невалидный тип аккаунта. Разрешены: user, seller, admin",
 )

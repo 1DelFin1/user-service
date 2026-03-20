@@ -9,7 +9,7 @@ from app.exceptions import INCORRECT_DATA_EXCEPTION, INVALID_ACCOUNT_TYPE_EXCEPT
 from app.api.request_forms import OAuth2EmailRequestForm
 from app.core.security import verify_password
 from app.core.config import settings
-from app.services import UserService, SellerService
+from app.services import UserService, SellerService, AdminService
 
 
 class JWTAuthenticator:
@@ -51,10 +51,11 @@ class Authorization:
         response: Response,
     ):
         account_type = form_data.account_type
-        if account_type not in {None, "user", "seller"}:
+        if account_type not in {None, "user", "seller", "admin"}:
             raise INVALID_ACCOUNT_TYPE_EXCEPTION
 
         candidates = [
+            ("admin", AdminService.get_admin_by_email),
             ("user", UserService),
             ("seller", SellerService),
         ]
@@ -64,7 +65,10 @@ class Authorization:
         selected_type = None
         user = None
         for candidate_type, service in candidates:
-            found = await service.get_by_email(session, form_data.username)
+            if candidate_type == "admin":
+                found = await service(session, form_data.username)
+            else:
+                found = await service.get_by_email(session, form_data.username)
             if not found:
                 continue
             if verify_password(form_data.password, found.hashed_password):

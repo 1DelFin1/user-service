@@ -12,7 +12,7 @@ from app.exceptions import (
     USER_UNAUTHORIZED_EXCEPTION,
     INVALID_TOKEN_EXCEPTION,
 )
-from app.services import UserService, SellerService
+from app.services import UserService, SellerService, AdminService
 
 
 async def get_session() -> AsyncGenerator:
@@ -55,9 +55,15 @@ async def _get_current_active_auth_account(
             raise USER_NOT_FOUND_EXCEPTION
         return account
 
-    account = await SellerService.get_seller_by_email(session, email)
+    if expected_account_type == "seller":
+        account = await SellerService.get_seller_by_email(session, email)
+        if not account:
+            raise SELLER_NOT_FOUND_EXCEPTION
+        return account
+
+    account = await AdminService.get_admin_by_email(session, email)
     if not account:
-        raise SELLER_NOT_FOUND_EXCEPTION
+        raise USER_NOT_FOUND_EXCEPTION
 
     return account
 
@@ -68,3 +74,7 @@ async def get_current_active_auth_user(request: Request, session: SessionDep):
 
 async def get_current_active_auth_seller(request: Request, session: SessionDep):
     return await _get_current_active_auth_account(request, session, "seller")
+
+
+async def get_current_active_auth_admin(request: Request, session: SessionDep):
+    return await _get_current_active_auth_account(request, session, "admin")
