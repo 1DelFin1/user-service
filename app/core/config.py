@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     MINIO_BUCKET_NAME: str
     MINIO_PUBLIC_ENDPOINT: str = "http://localhost:9000"
     MINIO_SECURE: bool = False
+    NGINX_URL: str = "http://nginx_gateway"
 
     @computed_field
     @property

@@ -13,9 +13,13 @@ sellers_router = APIRouter(prefix="/sellers", tags=["sellers"])
 
 @sellers_router.get("/me")
 async def get_current_user(
+    session: SessionDep,
     user_data: SellerInDBSchema = Depends(get_current_active_auth_seller),
 ):
-    return user_data
+    seller = await SellerService.get_seller_by_id(session, user_data.id, refresh_metrics=True)
+    if seller is None:
+        raise SELLER_NOT_FOUND_EXCEPTION
+    return seller
 
 
 @sellers_router.post("/me/photo", response_model=SellerOutSchema)
@@ -34,7 +38,7 @@ async def create_seller(session: SessionDep, seller_data: SellerCreateSchema):
 
 @sellers_router.get("/{seller_id}")
 async def get_seller_by_id(session: SessionDep, seller_id: UUID):
-    seller = await SellerService.get_seller_by_id(session, seller_id)
+    seller = await SellerService.get_seller_by_id(session, seller_id, refresh_metrics=True)
     if seller is None:
         raise SELLER_NOT_FOUND_EXCEPTION
     return seller
